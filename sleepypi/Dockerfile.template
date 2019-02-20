@@ -44,7 +44,6 @@ pio run
 
 #Copy testing stuff
 COPY ./deadmanswitch.py /
-RUN chmod +x /test/hw/* && chmod +x /test/sw/* && chmod +x /test/*
 
 #Enable i2c and start script
 CMD modprobe i2c-dev && python ./deadmanswitch.py
