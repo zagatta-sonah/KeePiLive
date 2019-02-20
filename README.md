@@ -69,7 +69,7 @@ This Script is
     * the serial logs from the SleepyPi\n
 to the same logfile "log.txt". We only need the switching of the deadmanswitch for the FW Integration.
 
-## PlatformIO Project
+## /platformio/* -> PlatformIO Project
 
 ### platformio.ini
 PlatformIO Project definiton file. \n
