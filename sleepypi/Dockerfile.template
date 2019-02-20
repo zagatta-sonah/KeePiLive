@@ -43,7 +43,7 @@ RUN cd platformio \
 pio run
 
 #Copy testing stuff
-COPY ./test /test
+COPY ./deadmanswitch.py /
 RUN chmod +x /test/hw/* && chmod +x /test/sw/* && chmod +x /test/*
 
 #Enable i2c and start script
