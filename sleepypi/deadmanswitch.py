@@ -21,11 +21,7 @@ def switchHandshake(mode):
     return handshake_mode
 
 
-for x in range(1800):  # 30 minute
-    print(str(x) + ": " + str(handshake_mode))
-    time.sleep(1)
 while(True):
-    print(str(time.time()) + " - " + str(now) + " = " + str(time.time() - now) + " > " + str(delay))
     if((time.time() - now) > (delay)):
         handshake_mode = switchHandshake(handshake_mode)
         now = time.time()

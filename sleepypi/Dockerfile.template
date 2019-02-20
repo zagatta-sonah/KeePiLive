@@ -46,5 +46,5 @@ pio run
 COPY ./test /test
 RUN chmod +x /test/hw/* && chmod +x /test/sw/* && chmod +x /test/*
 
-#Enable i2c and make the container run indefintely
-CMD modprobe i2c-dev && tail -f /dev/null
+#Enable i2c and start script
+CMD modprobe i2c-dev && python ./deadmanswitch.py
