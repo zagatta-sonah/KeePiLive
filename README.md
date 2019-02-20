@@ -1,34 +1,41 @@
 # KeePiLive
-Code to keep a Raspberry Pi running forever when using Balena.io and the SleepyPi
+Code to keep a Raspberry Pi running forever when using balena.io and the SleepyPi
+
+## Set-Up
+ * Make a balena.io account
+ * Buy a [SleepyPi2](https://spellfoundry.com/product/sleepy-pi-2/)
+ * Follow the [guide](https://www.balena.io/docs/learn/getting-started/raspberrypi3/python/) to set-up your Pi
+   * If you havent worked with balena, i recommend following the whole tutorial to better understand the whole process of developement
+   * To use the code of this repo instead run the following code **instead** of the code in the tutorial, when reaching the chapter [Deploy Code](https://www.balena.io/docs/learn/getting-started/raspberrypi3/python/#deploy-code)
+     * `git clone https://github.com/zagatta-sonah/KeePiLive.git`
+     * `cd KeePiLive`
+     * `git remote add balena <USERNAME>@git.balena-cloud.com:<USERNAME>/<APPNAME>.git`
+   * When creating a application in balena, make sure for it to have the following settings:
+     * Use a **production images**
+     * Device Configuration:
+       * Enable: RESIN_HOST_CONFIG_enable_uart
+       * RESIN_HOST_CONFIG_dtoverlay = pi3-miniuart-bt
+       * RESIN_HOST_CONFIG_dtparam = "i2c_arm=on","spi=on","audio=on"
 
 
-# Flash SleepyPi2 Firmware
+## Flash SleepyPi2 Firmware
 
-This readme will explain the main steps in flashing the FW.
-The Compiling and Flashing is done by the PlatformIO CLI core.
+SSH into the "sleepypi" container (via balena cli or web interface) and run `/platformio/flash.sh` \n
+The result should end with: \n
+```
+============================= [SUCCESS] Took 10.91 seconds =============================
+```
 
-## Setting up the Container
-
-### Balena Settings+
- * Only works with production images
- * Activate UART
- * RESIN_HOST_CONFIG_dtoverlay = pi3-miniuart-bt
-
+## Explanations to different files in this Repo
 
 ### docker-compose.yml
-It is not possible to run the flashing with these performance limitations, so they were removed
-
-```
-cpu_quota: '10000'
-cpuset: '0'
-mem_limit: '64m'
-```
+Make sure NOT to put preformance limitations on the SleepyPi container \n
 
 The Container needs to access the GPIO Pins (to pulse the reset line) and the UART bus (to flash the sleepypi fw). If all of these settings are actually necessary is not yet determined.
 
 ```
 labels:
-  io.balena.features.kernel-modules: '1'
+  io.resin.features.kernel-modules: '1'
 devices:
   - "/dev/i2c-1:/dev/i2c-1"
 cap_add:
@@ -68,14 +75,9 @@ Contains:
 
 ### /boards/sleepypi_custom.json
 Custom microcontroller board specification for the SleepyPi2.
- * Defines some important electrotechnical stuff.
- * Written by Daniel Krebs (enlyze)
 
 ### custom-avrdude.py
  * Changes the Environtment Variable "UPLOADER" to the the path of the *avrdude-pi.sh* script.
-   * In case it's run on ARCH Linux, it will use the path appropriate.
-
-*TODO:* We should just specify the path manually because its always going to be the same location
 
 ### avrdude-pi.sh
  * Pulses the Reset-Line to activate flashing process for the SleepyPi microcontroller
@@ -87,7 +89,6 @@ Script for flashing the Firmware.
  * Starts compiling and flashing process of the SleepyPi FW
  * Flips the power-control bit again ->
    * SleepyPi will can cut the power off again from Pi
-   * Power will be cut of due to flipping the bit
 
 ### /src/main.cpp
 Arduino code in c++ format (not Arduino code .ino)
