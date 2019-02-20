@@ -24,12 +24,83 @@ Code to keep a Raspberry Pi running forever when using [balena.io](https://www.b
 
 
 ## Flash SleepyPi2 Firmware
-
 SSH into the "sleepypi" container (via balena cli or web interface) and run `/platformio/flash.sh`
 
 The result should end with:  
 ```
 ============================= [SUCCESS] Took 10.91 seconds =============================
+```
+
+## Read logs from the SleepyPi2
+ * run `pio device monitor -p /dev/ttyAMA0`
+ * the logs should appear in the following order, separated by **;**, e.g. `3.0.0;0;00;07;00`
+   * Version String = 3.0.0
+   * Value of Pi Pins = 0 (low voltage)
+   * Missed switches = 00 (no missed switches)
+   * Seconds since last switch = 07
+   * Minutes since reset (in case Pi was offline and needs to be restarted) = 0
+
+So when everything is good, logs should look like this:
+```
+3.0.0;1;00;00;00
+3.0.0;1;00;01;00
+3.0.0;1;00;02;00
+3.0.0;1;00;03;00
+3.0.0;1;00;04;00
+3.0.0;1;00;05;00
+3.0.0;1;00;06;00
+3.0.0;1;00;07;00
+3.0.0;1;00;08;00
+3.0.0;1;00;09;00
+3.0.0;1;00;10;00
+3.0.0;1;00;11;00
+3.0.0;1;00;12;00
+3.0.0;1;00;13;00
+3.0.0;1;00;14;00
+3.0.0;1;00;15;00
+3.0.0;1;00;16;00
+3.0.0;1;00;17;00
+3.0.0;1;00;18;00
+3.0.0;1;00;19;00
+3.0.0;1;00;20;00
+3.0.0;1;00;21;00
+3.0.0;1;00;22;00
+3.0.0;1;00;23;00
+3.0.0;1;00;24;00
+3.0.0;1;00;25;00
+3.0.0;1;00;26;00
+3.0.0;1;00;27;00
+3.0.0;1;00;28;00
+3.0.0;0;00;00;00
+3.0.0;0;00;01;00
+3.0.0;0;00;02;00
+3.0.0;0;00;03;00
+3.0.0;0;00;04;00
+3.0.0;0;00;05;00
+3.0.0;0;00;06;00
+3.0.0;0;00;07;00
+3.0.0;0;00;08;00
+3.0.0;0;00;09;00
+3.0.0;0;00;10;00
+3.0.0;0;00;11;00
+3.0.0;0;00;12;00
+3.0.0;0;00;13;00
+3.0.0;0;00;14;00
+3.0.0;0;00;15;00
+3.0.0;0;00;16;00
+3.0.0;0;00;17;00
+3.0.0;0;00;18;00
+3.0.0;0;00;19;00
+3.0.0;0;00;20;00
+3.0.0;0;00;21;00
+3.0.0;0;00;22;00
+3.0.0;0;00;23;00
+3.0.0;0;00;24;00
+3.0.0;0;00;25;00
+3.0.0;0;00;26;00
+3.0.0;0;00;27;00
+3.0.0;0;00;28;00
+3.0.0;0;00;29;00
 ```
 
 ## Explanations to different files in this Repo
