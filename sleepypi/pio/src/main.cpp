@@ -1,0 +1,215 @@
+//
+// Simple example showing how to set the RTC alarm pin to wake up the Arduino.
+// This is a different mode to the alarm clock, which wakes at a particular
+// time. This mode is a repeating periodic time, waking the Arduino at fixed
+// intervals. Note: this example doesn't wake up the RPi. For that add:
+//
+//     SleepyPi.enablePiPower(true);
+//
+// after arduino wakeup. For a clearer picture of how to do this see the
+// eaxmple WakePiPeriodically which wakes the Rpi at fixed intervals.
+//
+// To test on the RPi without power cycling and using the Arduino IDE
+// to view the debug messages, either fit the Power Jumper or enable
+// self-power. http://spellfoundry.com/sleepy-pi/programming-arduino-ide/
+//
+
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////DO NOT EDIT FROM HERE....///////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
+// **** INCLUDES *****
+#include <Arduino.h>
+#include <SleepyPi2.h>
+#include <LowPower.h>
+#include <PCF8523.h>
+#include <Time.h>
+#include <TimeLib.h>
+#include <Wire.h>
+
+// ****DEFINE METHODS ****
+void log(String logMessage);
+void logStats();
+void blink(int number);
+String twoDigits(int number);
+String getTimeString();
+// DEFINE FUNCTIONS END
+
+const int LED_PIN = 13;
+
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////...TO HERE /////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
+//
+// Global Variables
+//
+
+boolean last_pi_pin_status = true;
+int missed_switches = 0, max_missed_switches=10;
+int sec_since_last_switch = 0, switch_timeout=30; //Seconds
+int sec_since_powercut = 0; //Seconds
+int power_off_period = 600; //600s = 10min
+int revive_timeout = 1200;//1200s = 20min
+
+
+String sleepypi_fw_version = "3.0.0";
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////DO NOT EDIT FROM HERE....///////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+void setup()
+{
+    // Configure "Standard" LED pin
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, LOW); // Switch off LED
+
+    // initialize serial communication: In Arduino IDE use "Serial Monitor"
+    Serial.begin(9600);
+    SleepyPi.enablePiPower(true);   // Turn power on
+}
+
+void loop()
+{
+
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    //////////...TO HERE /////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    //////////ACTUAL CODE.... ////////////////////////////////
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    logStats();
+    // Did the Pi change the handshake = deadman-switch
+    if (SleepyPi.checkPiStatus(false) != last_pi_pin_status) // offline
+    {
+      // Deadman switch changed = pi still working
+      // Update values
+      sec_since_last_switch = 0;
+      missed_switches = 0;
+      sec_since_powercut = 0;
+      last_pi_pin_status = SleepyPi.checkPiStatus(false);
+      blink(1);
+    }
+    else {
+      // Deadman switch did not change
+      if (missed_switches < max_missed_switches){
+        if (sec_since_last_switch < switch_timeout ){
+        // pi has still time for dead man switch
+          sec_since_last_switch++;
+        }
+        else {
+          //pi missed a switch
+          sec_since_last_switch = 0;
+          missed_switches++;
+        }
+      }
+      else {
+        //Pi has missed minimum 10 switches -> needs reboot
+        if (sec_since_powercut < power_off_period){
+          // Power is turned off until 10 minutes have passed
+          SleepyPi.enablePiPower(false);
+        }
+        else if (power_off_period <= sec_since_powercut  && sec_since_powercut <= revive_timeout){
+          // Power is turned on until 20 minutes have passed
+          SleepyPi.enablePiPower(true);
+        }
+        else {
+          // If more than 20 minutes pass without a GPIO switch, the power cut cycle is restarted
+          sec_since_powercut = 0;
+        }
+        sec_since_powercut++;
+      }
+    }
+    delay(1000);  // Wait 1 second
+}
+
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////....END OF ACTUAL CODE /////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////DO NOT EDIT FROM HERE....///////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
+// **********************************************************************
+//
+//  - Helper routines
+//
+// **********************************************************************
+void log(String logMessage) {
+  Serial.println(sleepypi_fw_version + ";" +logMessage);
+}
+
+void logStats()
+{
+    int powercut_offset_minutes = sec_since_powercut / 60;
+    String logMessage = String(last_pi_pin_status) + ";" + twoDigits(missed_switches) + ";" + twoDigits(sec_since_last_switch) + ";" + twoDigits(powercut_offset_minutes);
+    //YYYYMMDDHHMMSS;mode;missed_switches;sec_since_last_switch;powercut[minutes]
+    log(logMessage);
+}
+
+void blink(int number)
+{
+    for (int i = 0; i < number; i++)
+    {
+        digitalWrite(LED_PIN, LOW);
+        delay(10);
+        digitalWrite(LED_PIN, HIGH);
+        delay(100);
+        digitalWrite(LED_PIN, LOW);
+        delay(100);
+    }
+}
+
+String getTimeString(){
+  DateTime now = SleepyPi.readTime();
+  //YYYY-MM-DDTHH:MM:SSZ
+  String timeString = twoDigits(now.year()) + "-" + twoDigits(now.month()) + "-" + twoDigits(now.day()) + "T" + twoDigits(now.hour()) + ":" +twoDigits(now.minute()) + ":" + twoDigits(now.second()) + "Z";
+  return timeString;
+}
+
+String twoDigits(int number){
+  if (number < 10){
+    return ("0" + String(number));
+  }else {
+    return String(number);
+  }
+}
+
+
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////...TO HERE /////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
