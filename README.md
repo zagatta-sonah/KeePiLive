@@ -1,8 +1,8 @@
 # KeePiLive
-Code to keep a Raspberry Pi running forever when using balena.io and the SleepyPi
+Code to keep a Raspberry Pi running forever when using [balena.io](https://www.balena.io/) and the [SleepyPi2](https://spellfoundry.com/product/sleepy-pi-2/)
 
 ## Set-Up
- * Make a balena.io account
+ * Make a [balena.io](https://www.balena.io/) account
  * Buy a [SleepyPi2](https://spellfoundry.com/product/sleepy-pi-2/)
  * Follow the [guide](https://www.balena.io/docs/learn/getting-started/raspberrypi3/python/) to set-up your Pi
    * If you havent worked with balena, i recommend following the whole tutorial to better understand the whole process of developement
@@ -16,11 +16,17 @@ Code to keep a Raspberry Pi running forever when using balena.io and the SleepyP
        * Enable: RESIN_HOST_CONFIG_enable_uart
        * RESIN_HOST_CONFIG_dtoverlay = pi3-miniuart-bt
        * RESIN_HOST_CONFIG_dtparam = "i2c_arm=on","spi=on","audio=on"
+   * Flash the firmware (see "Flash SleepyPi2 Firmware" below)
+ * Now write your own container to run your own code and never worry about the pi beeing and staying online again
+
+## Algorithm
+![Algorithm Flow Chart](https://github.com/zagatta-sonah/KeePiLive/blob/master/sleepypi/doc/SleepyPi_v3.jpg)
 
 
 ## Flash SleepyPi2 Firmware
 
-SSH into the "sleepypi" container (via balena cli or web interface) and run `/platformio/flash.sh` \n
+SSH into the "sleepypi" container (via balena cli or web interface) and run `/platformio/flash.sh`
+\n
 The result should end with: \n
 ```
 ============================= [SUCCESS] Took 10.91 seconds =============================
