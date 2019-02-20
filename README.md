@@ -26,8 +26,8 @@ Code to keep a Raspberry Pi running forever when using [balena.io](https://www.b
 ## Flash SleepyPi2 Firmware
 
 SSH into the "sleepypi" container (via balena cli or web interface) and run `/platformio/flash.sh`
-\n
-The result should end with: \n
+
+The result should end with:  
 ```
 ============================= [SUCCESS] Took 10.91 seconds =============================
 ```
@@ -35,7 +35,7 @@ The result should end with: \n
 ## Explanations to different files in this Repo
 
 ### docker-compose.yml
-Make sure NOT to put preformance limitations on the SleepyPi container \n
+Make sure NOT to put preformance limitations on the SleepyPi container  
 
 The Container needs to access the GPIO Pins (to pulse the reset line) and the UART bus (to flash the sleepypi fw). If all of these settings are actually necessary is not yet determined.
 
@@ -63,16 +63,16 @@ Dockerfile basically consists of:
 
 ### /test/sw/start.sh
 This Script is
- * switching the Handshake On/Off every 30 sec. \n
+ * switching the Handshake On/Off every 30 sec.  
  * Logging the
     * time difference since last switch
-    * the serial logs from the SleepyPi\n
+    * the serial logs from the SleepyPi
 to the same logfile "log.txt". We only need the switching of the deadmanswitch for the FW Integration.
 
 ## /platformio/* -> PlatformIO Project
 
 ### platformio.ini
-PlatformIO Project definiton file. \n
+PlatformIO Project definiton file.  
 Contains:
  * Dependencies for the SleepyPi FW (Git links)
  * Board Specification -> points to custom specification */boards/sleepypi_custom.json*
